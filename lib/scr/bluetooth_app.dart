@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_practice/scr/state_management/riverpod_home.dart';
 
-class RiverpodBasicApp extends StatelessWidget {
-  const RiverpodBasicApp({super.key});
+import 'neworking/bluetooth_home.dart';
+
+class BluetoothApp extends StatelessWidget {
+  const BluetoothApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class RiverpodBasicApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const RiverpodHome(title: 'Riverpod Basics'),
+      home: const BluetoothHome(title: 'BLE Scan'),
     );
   }
 }
