@@ -87,7 +87,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
     setState(() {});
   }
 
-  /* start connection */
+  /// Start connection
   Future<bool> connect() async {
     Future<bool>? returnValue;
     setState(() {
@@ -95,13 +95,12 @@ class _DeviceScreenState extends State<DeviceScreen> {
       stateText = 'Connecting';
     });
 
-    /*
-      Set timeout to 10 seconds (10000ms) and turn off autoconnect
-       For reference, if autoconnect is set to true, the connection may be delayed.
-     */
+    // Set timeout to 10 seconds (10000ms) and turn off auto connect
+    // For reference, if auto connect is set to true, the connection may be delayed.
+
     await widget.device
         .connect(autoConnect: false)
-        .timeout(Duration(milliseconds: 10000), onTimeout: () {
+        .timeout(const Duration(milliseconds: 10000), onTimeout: () {
       //timeout occurs
       // set returnValue to false
       returnValue = Future.value(false);
@@ -120,7 +119,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
     return returnValue ?? Future.value(false);
   }
 
-  /* Disconnect */
+  /// Disconnect
   void disconnect() {
     try {
       setState(() {
@@ -138,13 +137,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
         title: Text(widget.device.name),
       ),
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          /* connection status */
-          Text('$stateText'),
-          /* Connect and disconnect buttons */
-          OutlinedButton(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // connection status
+            Text('$stateText'),
+            // Connect and disconnect buttons
+            OutlinedButton(
               onPressed: () {
                 if (deviceState == BluetoothDeviceState.connected) {
                   /* Disconnect if connected */
@@ -154,9 +153,11 @@ class _DeviceScreenState extends State<DeviceScreen> {
                   connect();
                 } else {}
               },
-              child: Text(connectButtonText)),
-        ],
-      )),
+              child: Text(connectButtonText),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
