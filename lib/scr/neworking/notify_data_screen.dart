@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
-class DeviceServiceScreen extends StatefulWidget {
-  const DeviceServiceScreen({Key? key, required this.device}) : super(key: key);
+class NotyfyDataScreen extends StatefulWidget {
+  const NotyfyDataScreen({Key? key, required this.device}) : super(key: key);
   // Receive device information
   final BluetoothDevice device;
 
   @override
-  _DeviceServiceScreenState createState() => _DeviceServiceScreenState();
+  _NotyfyDataScreenState createState() => _NotyfyDataScreenState();
 }
 
-class _DeviceServiceScreenState extends State<DeviceServiceScreen> {
+class _NotyfyDataScreenState extends State<NotyfyDataScreen> {
   // flutterBlue
   FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
 
@@ -31,7 +31,7 @@ class _DeviceServiceScreenState extends State<DeviceServiceScreen> {
   // List of bluetooth device services
   List<BluetoothService> bluetoothService = [];
 
-  // Notify data
+  // Notify
   Map<String, List<int>> notifyDatas = {};
 
   @override
@@ -139,6 +139,39 @@ class _DeviceServiceScreenState extends State<DeviceServiceScreen> {
               print(
                   '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
               print('\t\tindicate: ${c.properties.indicate}');
+              // If notify or indicate is true, it is a characteristic that can send data from the device, so activate it.
+              // However, if descriptors are empty, notify cannot be performed, so pass!
+              if (c.properties.notify && c.descriptors.isNotEmpty) {
+                // Simple check to see if there is a real 0x2902!
+                for (BluetoothDescriptor d in c.descriptors) {
+                  print('BluetoothDescriptor uuid ${d.uuid}');
+                  if (d.uuid == BluetoothDescriptor.cccd) {
+                    print('d.lastValue: ${d.lastValue}');
+                  }
+                }
+
+                // If notify is not set...
+                if (!c.isNotifying) {
+                  try {
+                    await c.setNotifyValue(true);
+                    // Generate a key in the form of a data variable map to receive
+                    notifyDatas[c.uuid.toString()] = List.empty();
+                    c.value.listen((value) {
+                      // handle reading data!
+                      print('${c.uuid}: $value');
+                      setState(() {
+                        // For displaying the received data save screen
+                        notifyDatas[c.uuid.toString()] = value;
+                      });
+                    });
+
+                    // Delay for a certain amount of time after setting
+                    await Future.delayed(const Duration(milliseconds: 500));
+                  } catch (e) {
+                    print('error ${c.uuid} $e');
+                  }
+                }
+              }
             }
           }
           returnValue = Future.value(true);
@@ -242,6 +275,10 @@ class _DeviceServiceScreenState extends State<DeviceServiceScreen> {
         properties += 'Indicate ';
       }
       name += '\t\t\tProperties: $properties\n';
+      if (data.isNotEmpty) {
+        // Output the received data to the screen!
+        name += '\t\t\t\t$data\n';
+      }
     }
     return Text(name);
   }
